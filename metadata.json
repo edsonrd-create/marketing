@@ -1,6 +1,6 @@
 {
-  "name": "MCP Marketing",
-  "description": "Marketing Brain - MCP Marketing Platform with Google Ads, Meta Ads, WhatsApp, Insights, AI Agent, and Workflows",
+  "name": "Guto Express APK",
+  "description": "Painel móvel APK Guto Express — Tráfego Pago, WhatsApp CRM & Marketing Brain AI",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

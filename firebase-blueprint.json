@@ -1,0 +1,81 @@
+{
+  "entities": {
+    "Campaign": {
+      "title": "Campaign",
+      "description": "Guto Express advertising campaign configuration and metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "platform": { "type": "string", "enum": ["google-ads", "meta-ads"] },
+        "budget": { "type": "number" },
+        "status": { "type": "string", "enum": ["Ativa", "Pausada"] },
+        "roas": { "type": "number" },
+        "strategy": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "platform", "budget", "status"]
+    },
+    "Recommendation": {
+      "title": "Recommendation",
+      "description": "AI-generated marketing optimization tip",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "impact": { "type": "string", "maxLength": 100 },
+        "type": { "type": "string", "maxLength": 100 },
+        "actionPrompt": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description"]
+    },
+    "Lead": {
+      "title": "Lead",
+      "description": "WhatsApp CRM contact and order details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "orderInfo": { "type": "string", "maxLength": 300 },
+        "origin": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["Atendido IA", "Aguardando", "Concluído"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "status"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Marketing Brain AI assistant chat log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sender": { "type": "string", "enum": ["user", "ai"] },
+        "text": { "type": "string", "maxLength": 2000 },
+        "latencyMs": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sender", "text"]
+    }
+  },
+  "firestore": {
+    "/campaigns/{campaignId}": {
+      "schema": "Campaign",
+      "description": "Collection of all ad campaigns"
+    },
+    "/recommendations/{recId}": {
+      "schema": "Recommendation",
+      "description": "Collection of AI recommendation tips"
+    },
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "WhatsApp CRM contacts and leads"
+    },
+    "/chatMessages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "AI Assistant chat history logs"
+    }
+  }
+}

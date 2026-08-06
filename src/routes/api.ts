@@ -1,21 +1,17 @@
 import type { FastifyInstance } from "fastify";
 import type { AppContext } from "../core/context.js";
+import {
+  getFirebaseCampaigns,
+  saveFirebaseCampaign,
+  updateFirebaseCampaignStatus,
+  saveChatMessage,
+  type CampaignData,
+} from "../services/firebaseService.js";
 
-export interface CampaignMock {
-  id: string;
-  platform: "google-ads" | "meta-ads";
-  name: string;
-  budget: number;
-  status: "Ativa" | "Pausada";
-  clicks: number;
-  cpc: number;
-  roas: number;
-  cpa: number;
-  strategy: string;
-}
+export type CampaignMock = CampaignData;
 
-// Repositório em memória para operações administrativas e de testes
-const mockCampaigns: CampaignMock[] = [
+// Repositório inicial/fallback para Guto Express
+const initialCampaigns: CampaignMock[] = [
   {
     id: "cmp-7587497137-01",
     platform: "google-ads",
@@ -55,7 +51,7 @@ const mockCampaigns: CampaignMock[] = [
   {
     id: "cmp-001",
     platform: "google-ads",
-    name: "[Search] Vendas Software B2B",
+    name: "[Search] Vendas Delivery Express",
     budget: 150.00,
     status: "Ativa",
     clicks: 6420,
@@ -67,7 +63,7 @@ const mockCampaigns: CampaignMock[] = [
   {
     id: "cmp-002",
     platform: "google-ads",
-    name: "[Display] Remarketing Geral",
+    name: "[Display] Remarketing Guto Express",
     budget: 80.00,
     status: "Ativa",
     clicks: 5100,
@@ -79,7 +75,7 @@ const mockCampaigns: CampaignMock[] = [
   {
     id: "cmp-003",
     platform: "meta-ads",
-    name: "[Meta Feed] Conversão Lead Magnético",
+    name: "[Meta Feed] Conversão Cardápio Digital",
     budget: 120.00,
     status: "Ativa",
     clicks: 4230,
@@ -91,7 +87,7 @@ const mockCampaigns: CampaignMock[] = [
   {
     id: "cmp-004",
     platform: "meta-ads",
-    name: "[Instagram Reels] Vídeo Curto Demo",
+    name: "[Instagram Reels] Promoção Pizza Família",
     budget: 90.00,
     status: "Pausada",
     clicks: 1850,
@@ -101,6 +97,8 @@ const mockCampaigns: CampaignMock[] = [
     strategy: "Engajamento com Vídeo",
   },
 ];
+
+let localCampaignsCache: CampaignMock[] = [...initialCampaigns];
 
 const SYSTEM_INSTRUCTION_DIRECT_EXECUTION = `
 # MARKETING BRAIN AI v3.0 — SYSTEM PROMPT EXECUTIVO
@@ -257,8 +255,22 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
         }
       }
 
+      // Salvar mensagens do chat no Firestore
+      try {
+        await saveChatMessage({ sender: "user", text: userMessage });
+      } catch (err) {
+        ctx.logger.warn({ err }, "Falha ao gravar mensagem do usuário no Firestore");
+      }
+
       // 3. Fallback dinâmico (sem saudações genéricas ou "Resumos Executivos" falsos)
       const fallbackReply = generateDirectTechnicalResponse(userMessage);
+
+      try {
+        await saveChatMessage({ sender: "ai", text: fallbackReply });
+      } catch (err) {
+        ctx.logger.warn({ err }, "Falha ao gravar mensagem da IA no Firestore");
+      }
+
       return reply.send({
         source: "marketing-brain-core",
         model: "Marketing Brain Direct Engine",
@@ -272,9 +284,22 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
     }
   });
 
-  // Rotas de Gestão de Campanhas
+  // Rotas de Gestão de Campanhas com Firebase Firestore
   app.get("/api/campaigns", async () => {
-    return { campaigns: mockCampaigns };
+    try {
+      const fbCampaigns = await getFirebaseCampaigns();
+      if (fbCampaigns && fbCampaigns.length > 0) {
+        localCampaignsCache = fbCampaigns as CampaignMock[];
+      } else {
+        // Inicializar o Firestore com as campanhas padrão se estiver vazio
+        for (const c of localCampaignsCache) {
+          await saveFirebaseCampaign(c);
+        }
+      }
+    } catch (err) {
+      ctx.logger.warn({ err }, "Aviso: Usando cache local de campanhas (fallback Firestore)");
+    }
+    return { campaigns: localCampaignsCache };
   });
 
   app.post("/api/campaigns", async (request, reply) => {
@@ -290,7 +315,7 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
     }
 
     const newCampaign: CampaignMock = {
-      id: `cmp-00${mockCampaigns.length + 1}`,
+      id: `cmp-00${localCampaignsCache.length + 1}`,
       platform: body.platform,
       name: body.name,
       budget: body.budget || 100.00,
@@ -300,14 +325,22 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
       roas: 0,
       cpa: 0,
       strategy: body.strategy || "Maximizar Conversões com IA",
+      createdAt: new Date().toISOString(),
     };
 
-    mockCampaigns.push(newCampaign);
+    localCampaignsCache.push(newCampaign);
+
+    try {
+      await saveFirebaseCampaign(newCampaign);
+    } catch (err) {
+      ctx.logger.warn({ err }, "Aviso: Falha ao persistir nova campanha no Firestore; mantida no cache local");
+    }
+
     ctx.logger.info({ campaign: newCampaign }, "Nova campanha criada com sucesso.");
 
     return reply.code(201).send({
       success: true,
-      message: "Campanha registrada com sucesso.",
+      message: "Campanha registrada com sucesso no Firestore.",
       campaign: newCampaign,
     });
   });
@@ -316,12 +349,18 @@ export async function registerApiRoutes(app: FastifyInstance, ctx: AppContext): 
     const { id } = request.params as { id: string };
     const body = request.body as { status?: "Ativa" | "Pausada" } | undefined;
 
-    const campaign = mockCampaigns.find((c) => c.id === id);
+    const campaign = localCampaignsCache.find((c) => c.id === id);
     if (!campaign) {
       return reply.code(404).send({ error: "Campanha não encontrada." });
     }
 
     campaign.status = body?.status ?? (campaign.status === "Ativa" ? "Pausada" : "Ativa");
+
+    try {
+      await updateFirebaseCampaignStatus(id, campaign.status);
+    } catch (err) {
+      ctx.logger.warn({ err }, "Aviso: Falha ao atualizar status no Firestore; atualizado no cache local");
+    }
 
     return {
       success: true,
