@@ -1,0 +1,18 @@
+{
+  "app": "marketing-brain",
+  "version": "1.1.0",
+  "logLevel": "info",
+  "database": {
+    "mode": "memory"
+  },
+  "mcp": {
+    "servers": [
+      "google-ads",
+      "meta-ads",
+      "whatsapp",
+      "insights",
+      "ai-agent",
+      "workflows"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "logLevel": "debug",
+  "database": {
+    "mode": "memory"
+  }
+}

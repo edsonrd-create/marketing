@@ -1,0 +1,21 @@
+services:
+  marketing-brain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: marketing-brain:1.1.0-lts
+    container_name: marketing-brain
+    restart: unless-stopped
+    stdin_open: true
+    tty: false
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "docker/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

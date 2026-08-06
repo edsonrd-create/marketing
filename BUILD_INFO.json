@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "commit": "75ae2de57f43437bacfc101771336dc8928cde8c",
+  "date": "2026-08-03T21:50:00.857Z",
+  "node": "v22.14.0",
+  "npm": "10.9.7",
+  "platform": "linux-x64",
+  "packages": [
+    "@mcp-marketing/shared",
+    "@mcp-marketing/google-ads",
+    "@mcp-marketing/meta-ads",
+    "@mcp-marketing/whatsapp",
+    "@mcp-marketing/insights",
+    "@mcp-marketing/ai-agent",
+    "@mcp-marketing/workflows",
+    "@mcp-marketing/cli",
+    "@mcp-marketing/create-marketing-brain"
+  ],
+  "toolsCount": 52,
+  "testsCount": 36
+}

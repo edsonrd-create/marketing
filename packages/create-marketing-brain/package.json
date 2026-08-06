@@ -1,0 +1,17 @@
+{
+  "name": "@mcp-marketing/create-marketing-brain",
+  "version": "1.1.0",
+  "description": "Scaffold a new Marketing Brain project directory with .env guidance",
+  "type": "module",
+  "bin": {
+    "create-marketing-brain": "./bin/create-marketing-brain.js"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

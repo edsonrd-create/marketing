@@ -1,0 +1,6 @@
+{
+  "name": "MCP Marketing",
+  "description": "Marketing Brain - MCP Marketing Platform with Google Ads, Meta Ads, WhatsApp, Insights, AI Agent, and Workflows",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./shared" },
+    { "path": "./mcp-google-ads" },
+    { "path": "./mcp-meta-ads" },
+    { "path": "./mcp-whatsapp" },
+    { "path": "./mcp-insights" },
+    { "path": "./mcp-ai-agent" },
+    { "path": "./mcp-workflows" }
+  ]
+}

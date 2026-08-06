@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "_comment": "Marketing Brain v1.1 LTS — example MCP client config. Replace ROOT with an absolute path. Do not commit real credentials.",
+  "mcpServers": {
+    "marketing-brain-google-ads": {
+      "command": "node",
+      "args": ["ROOT/mcp-google-ads/dist/index.js"],
+      "cwd": "ROOT",
+      "env": {
+        "GOOGLE_ADS_CLIENT_ID": "YOUR_CLIENT_ID",
+        "GOOGLE_ADS_CLIENT_SECRET": "YOUR_CLIENT_SECRET",
+        "GOOGLE_ADS_REFRESH_TOKEN": "YOUR_REFRESH_TOKEN",
+        "GOOGLE_ADS_DEVELOPER_TOKEN": "YOUR_DEVELOPER_TOKEN",
+        "GOOGLE_ADS_CUSTOMER_ID": "YOUR_CUSTOMER_ID",
+        "GOOGLE_ADS_SKIP_AUTH_VALIDATE": "false"
+      }
+    },
+    "marketing-brain-meta-ads": {
+      "command": "node",
+      "args": ["ROOT/mcp-meta-ads/dist/index.js"],
+      "cwd": "ROOT",
+      "env": {
+        "META_ACCESS_TOKEN": "YOUR_ACCESS_TOKEN",
+        "META_AD_ACCOUNT_ID": "act_XXXXXXXX",
+        "META_SKIP_AUTH_VALIDATE": "false"
+      }
+    },
+    "marketing-brain-whatsapp": {
+      "command": "node",
+      "args": ["ROOT/mcp-whatsapp/dist/server.js"],
+      "cwd": "ROOT",
+      "env": {
+        "WHATSAPP_TOKEN": "YOUR_TOKEN",
+        "WHATSAPP_PHONE_NUMBER_ID": "YOUR_PHONE_NUMBER_ID",
+        "WHATSAPP_API_VERSION": "v21.0"
+      }
+    },
+    "marketing-brain-insights": {
+      "command": "node",
+      "args": ["ROOT/mcp-insights/dist/server.js"],
+      "cwd": "ROOT",
+      "env": {
+        "DATABASE_MODE": "memory"
+      }
+    },
+    "marketing-brain-ai-agent": {
+      "command": "node",
+      "args": ["ROOT/mcp-ai-agent/dist/server.js"],
+      "cwd": "ROOT",
+      "env": {
+        "DATABASE_MODE": "memory"
+      }
+    },
+    "marketing-brain-workflows": {
+      "command": "node",
+      "args": ["ROOT/mcp-workflows/dist/server.js"],
+      "cwd": "ROOT",
+      "env": {
+        "DATABASE_MODE": "memory"
+      }
+    }
+  }
+}

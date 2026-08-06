@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "..",
+    "noEmit": true
+  },
+  "include": ["src/**/*", "../src/providers/google-ads/**/*"],
+  "exclude": ["**/*.test.ts", "../src/providers/google-ads/**/__tests__/**"]
+}

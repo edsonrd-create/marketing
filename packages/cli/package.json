@@ -1,0 +1,17 @@
+{
+  "name": "@mcp-marketing/cli",
+  "version": "1.1.0",
+  "description": "Marketing Brain CLI — doctor, status, validate, and ops commands",
+  "type": "module",
+  "bin": {
+    "marketing-brain": "./bin/marketing-brain.js"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}
