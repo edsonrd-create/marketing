@@ -1,3 +1,16 @@
+# 1) Atualizar branch base se necessário (ajuste main -> master se for o caso)
+BASE=main
+
+# 2) Criar branch de correção
+git fetch origin $BASE
+git checkout -b fix/ci-add-lockfile origin/$BASE
+
+# 3) Gerar package-lock.json (sem instalar node_modules)
+npm install --package-lock-only
+
+# 4) Substituir workflow pelo conteúdo seguro (cria/overwrite)
+mkdir -p .github/workflows
+cat > .github/workflows/ci.yml <<'YAML'
 name: CI
 
 on:
@@ -24,10 +37,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build
         run: npm run build
@@ -60,3 +79,18 @@ jobs:
           name: version-${{ github.sha }}
           path: VERSION
           retention-days: 14
+YAML
+
+# 5) Commit e push
+git add package-lock.json .github/workflows/ci.yml
+git commit -m "chore(ci): add package-lock.json and configure setup-node cache-dependency-path"
+git push --set-upstream origin fix/ci-add-lockfile
+
+# 6) Criar PR (se tiver gh CLI autenticado)
+if command -v gh >/dev/null 2>&1; then
+  gh pr create --base "$BASE" --head fix/ci-add-lockfile \
+    --title "chore(ci): add package-lock and fix setup-node cache" \
+    --body "Add package-lock.json and configure setup-node to use cache-dependency-path so npm ci works in CI. Fallback maintained for safety."
+else
+  echo "Branch pushada. Crie um PR manualmente em: https://github.com/edsonrd-create/marketing/pull/new/fix/ci-add-lockfile"
+fi
